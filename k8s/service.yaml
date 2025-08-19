@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-secure-app-service
+spec:
+  # 'LoadBalancer' creates a public-facing URL for your app.
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    # This connects the service to the deployment created above.
+    app: my-secure-app

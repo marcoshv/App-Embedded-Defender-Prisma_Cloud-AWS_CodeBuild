@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-secure-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-secure-app
+  template:
+    metadata:
+      labels:
+        app: my-secure-app
+    spec:
+      containers:
+      - name: my-secure-app
+        # This is a temporary placeholder. Our pipeline will replace
+        # 'placeholder' with the real image URL it builds.
+        image: placeholder
+        ports:
+        - containerPort: 80
