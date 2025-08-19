@@ -26,8 +26,13 @@
     },
     "post_build": {
         "commands": [
-          "echo Moving to source directory for deployment...",
-          "cd $CODEBUILD_SRC_DIR",
+          "echo Generating kubeconfig from Service Account...",
+          "SECRET_NAME=$(kubectl get serviceaccount codebuild-deployer -n kube-system -o jsonpath='{.secrets[0].name}')",
+          "TOKEN=$(kubectl get secret ${SECRET_NAME} -n kube-system -o jsonpath='{.data.token}' | base64 --decode)",
+          "CLUSTER_ENDPOINT=$(aws eks describe-cluster --name ${EKS_CLUSTER_NAME} --query 'cluster.endpoint' --output text)",
+          "CLUSTER_CA=$(aws eks describe-cluster --name ${EKS_CLUSTER_NAME} --query 'cluster.certificateAuthority.data' --output text)",
+          "echo \"apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: ${CLUSTER_CA}\n    server: ${CLUSTER_ENDPOINT}\n  name: eks-cluster\ncontexts:\n- context:\n    cluster: eks-cluster\n    user: codebuild-sa\n  name: sa-context\ncurrent-context: sa-context\nkind: Config\npreferences: {}\nusers:\n- name: codebuild-sa\n  user:\n    token: ${TOKEN}\" > kubeconfig.yaml",
+          "export KUBECONFIG=kubeconfig.yaml",
           "echo Starting deployment to EKS Fargate...",
           "IMAGE_URL=\"$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG\"",
           "sed -i \"s|image:.*|image: $IMAGE_URL|g\" k8s/deployment.yaml",
