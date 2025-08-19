@@ -26,7 +26,7 @@
     },
     "post_build": {
       "commands": [
-        "echo Configuring kubectl with IAM role...",
+        "echo Configuring kubectl with IAM role for token creation...",
         "aws eks --region $AWS_REGION update-kubeconfig --name $EKS_CLUSTER_NAME",
         "echo Getting Service Account token...",
         "K8S_TOKEN=$(kubectl create token codebuild-deployer -n kube-system --duration 600s)",
