@@ -2,11 +2,13 @@
   "version": 0.2,
   "phases": {
     "pre_build": {
-      "commands": [
-        "echo Logging in to Amazon ECR...",
-        "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-      ]
-    },
+        "commands": [
+          "echo Logging in to Amazon ECR...",
+          "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com",
+          "echo Logging in to Docker Hub...",
+          "echo \"$DOCKERHUB_PASS\" | docker login --username \"$DOCKERHUB_USER\" --password-stdin"
+        ]
+      },
     "build": {
       "commands": [
         "echo Downloading latest Prisma Cloud twistcli...",
