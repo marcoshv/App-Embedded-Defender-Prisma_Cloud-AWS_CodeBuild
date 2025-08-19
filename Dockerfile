@@ -8,4 +8,4 @@ COPY index.html /usr/share/nginx/html
 EXPOSE 80
 
 # Explicitly define the command to run when the container starts
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+#ENTRYPOINT ["nginx", "-g", "daemon off;"]
