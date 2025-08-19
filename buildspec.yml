@@ -16,7 +16,7 @@ phases:
   build:
     commands:
       - echo "Downloading latest Prisma Cloud twistcli..."
-      - curl -k -u "$PRISMA_USER:$PRISMA_PASS" "$PRISMA_CONSOLE_URL/api/v1/util/twistcli" --output twistcli
+      - curl -k -u "$PRISMA_USER:$PRIS_MA_PASS" "$PRISMA_CONSOLE_URL/api/v1/util/twistcli" --output twistcli
       - chmod +x ./twistcli
       - >
         ./twistcli app-embedded embed
