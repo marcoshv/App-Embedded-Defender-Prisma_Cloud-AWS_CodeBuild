@@ -1,0 +1,67 @@
+version: 0.2
+
+# The 'phases' are the different stages of the build process.
+phases:
+  # 'install' is for setting up the environment.
+  install:
+    runtime-versions:
+      docker: 19
+      # You can change the kubectl version to match your EKS cluster version if needed.
+      kubectl: 1.21
+  
+  # 'pre_build' is for commands that must run before the main build, like logging in.
+  pre_build:
+    commands:
+      # --- Step 1: Log in to the Amazon Elastic Container Registry (ECR) ---
+      # ECR is where we will store our final container image.
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      
+      # --- Step 2: Configure kubectl to talk to our EKS cluster ---
+      # This command gets the connection details for our cluster and configures kubectl.
+      - echo "Configuring kubectl for EKS Cluster: $EKS_CLUSTER_NAME"
+      - aws eks --region $AWS_REGION update-kubeconfig --name $EKS_CLUSTER_NAME
+
+  # 'build' is the main stage where we create our application artifact (the container image).
+  build:
+    commands:
+      # --- Step 3: Download the Prisma Cloud twistcli scanner ---
+      # This uses the credentials we stored in Secrets Manager to securely download the tool.
+      - echo "Downloading latest Prisma Cloud twistcli..."
+      - curl -k -u "$PRISMA_USER:$PRISMA_PASS" "$PRISMA_CONSOLE_URL/api/v1/util/twistcli" --output twistcli
+      - chmod +x ./twistcli # Make the downloaded file executable.
+      
+      # --- Step 4: Embed the Prisma Defender into our Dockerfile ---
+      # This command modifies our Dockerfile in memory to include the defender agent.
+      - echo "Embedding the App Embedded Defender..."
+      - >
+        ./twistcli app-embedded embed 
+        --address $PRISMA_CONSOLE_URL 
+        --user $PRISMA_USER 
+        --password $PRISMA_PASS 
+        --app-id my-secure-app
+        Dockerfile
+
+      # --- Step 5: Build, Tag, and Push the Secured Docker Image ---
+      - echo "Building the secured Docker image..."
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      # We give the image a full name that includes our ECR registry URL.
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo "Pushing the image to ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+  # 'post_build' is for final actions, like deploying the artifact we just built.
+  post_build:
+    commands:
+      # --- Step 6: Deploy the new image to the EKS Fargate cluster ---
+      - echo "Starting deployment to EKS Fargate..."
+      # This defines a variable with the full URL of the image we just pushed.
+      - IMAGE_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG"
+      - echo "Deploying image URL: $IMAGE_URL"
+      # This command finds the 'image: placeholder' line in our deployment.yml and replaces it with the real image URL.
+      - sed -i "s|image:.*|image: $IMAGE_URL|g" k8s/deployment.yml
+      - echo "Applying Kubernetes manifests..."
+      # These commands tell our EKS cluster to update the application with the new configuration.
+      - kubectl apply -f k8s/deployment.yml
+      - kubectl apply -f k8s/service.yml
+      - echo "Deployment complete. 🎉"
