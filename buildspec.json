@@ -28,13 +28,17 @@
         "commands": [
           "echo Moving to source directory for deployment...",
           "cd $CODEBUILD_SRC_DIR",
+          "echo --- Listing files in the current directory ---",
+          "ls -la",
+          "echo --- Listing files in the k8s directory ---",
+          "ls -la k8s/",
           "echo Starting deployment to EKS Fargate...",
           "IMAGE_URL=\"$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG\"",
           "sed -i \"s|image:.*|image: $IMAGE_URL|g\" k8s/deployment.yml",
           "echo Applying Kubernetes manifests...",
           "kubectl apply -f k8s/deployment.yml",
           "kubectl apply -f k8s/service.yml",
-          "echo Deployment complete! 🎉"
+          "echo Deployment complete!"
         ]
       }
   }
