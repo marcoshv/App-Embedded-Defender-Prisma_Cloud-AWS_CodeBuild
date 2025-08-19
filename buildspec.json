@@ -2,13 +2,13 @@
   "version": 0.2,
   "phases": {
     "pre_build": {
-        "commands": [
-          "echo Logging in to Amazon ECR...",
-          "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com",
-          "echo Logging in to Docker Hub...",
-          "echo \"$DOCKERHUB_PASS\" | docker login --username \"$DOCKERHUB_USER\" --password-stdin"
-        ]
-      },
+      "commands": [
+        "echo Logging in to Amazon ECR...",
+        "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com",
+        "echo Logging in to Docker Hub...",
+        "echo \"$DOCKERHUB_PASS\" | docker login --username \"$DOCKERHUB_USER\" --password-stdin"
+      ]
+    },
     "build": {
       "commands": [
         "echo Downloading latest Prisma Cloud twistcli...",
@@ -26,13 +26,14 @@
     },
     "post_build": {
       "commands": [
-        "echo Generating kubeconfig from Service Account...",
+        "echo Configuring kubectl with IAM role...",
+        "aws eks --region $AWS_REGION update-kubeconfig --name $EKS_CLUSTER_NAME",
+        "echo Getting Service Account token...",
+        "K8S_TOKEN=$(kubectl create token codebuild-deployer -n kube-system --duration 600s)",
+        "echo Generating new kubeconfig from Service Account token...",
         "CLUSTER_ENDPOINT=$(aws eks describe-cluster --name ${EKS_CLUSTER_NAME} --query 'cluster.endpoint' --output text)",
         "CLUSTER_CA=$(aws eks describe-cluster --name ${EKS_CLUSTER_NAME} --query 'cluster.certificateAuthority.data' --output text)",
-        "aws eks get-token --cluster-name ${EKS_CLUSTER_NAME}",
-        "SECRET_NAME=$(kubectl get serviceaccount codebuild-deployer -n kube-system -o jsonpath='{.secrets[0].name}')",
-        "TOKEN=$(kubectl get secret ${SECRET_NAME} -n kube-system -o jsonpath='{.data.token}' | base64 --decode)",
-        "echo \"apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: ${CLUSTER_CA}\n    server: ${CLUSTER_ENDPOINT}\n  name: eks-cluster\ncontexts:\n- context:\n    cluster: eks-cluster\n    user: codebuild-sa\n  name: sa-context\ncurrent-context: sa-context\nkind: Config\npreferences: {}\nusers:\n- name: codebuild-sa\n  user:\n    token: ${TOKEN}\" > /tmp/kubeconfig.yaml",
+        "echo \"apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: ${CLUSTER_CA}\n    server: ${CLUSTER_ENDPOINT}\n  name: eks-cluster\ncontexts:\n- context:\n    cluster: eks-cluster\n    user: codebuild-sa\n  name: sa-context\ncurrent-context: sa-context\nkind: Config\npreferences: {}\nusers:\n- name: codebuild-sa\n  user:\n    token: ${K8S_TOKEN}\" > /tmp/kubeconfig.yaml",
         "export KUBECONFIG=/tmp/kubeconfig.yaml",
         "echo Starting deployment to EKS Fargate...",
         "IMAGE_URL=\"$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG\"",
