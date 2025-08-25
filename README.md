@@ -182,7 +182,7 @@ This JSON file contains our final, working pipeline instructions, including the 
             "mkdir -p ./twistcli_data",
             "./twistcli app-embedded embed --data-folder ./twistcli_data --address $PRISMA_CONSOLE_URL --user $PRISMA_USER --password $PRISMA_PASS --app-id my-secure-app Dockerfile",
             "echo Unzipping the embedded defender package...",
-            "unzip app_embedded_embed_my-secure-app.zip -d ./embedded-build",
+            "unzip app_embedded_embed_*.zip -d ./embedded-build",
             "echo Copying application files to the build directory...",
             "cp index.html ./embedded-build/",
             "echo Removing conflicting ENTRYPOINT from the generated Dockerfile...",
