@@ -2,11 +2,12 @@
   "version": 0.2,
   "env": {
     "variables": {
-      "PRISMA_USER": "48fa15c3-9853-42b0-8efc-098916dc6fce",
-      "PRISMA_PASS": "1x1M6d+tk5U0d2LwhGHIAGDmR8Y=",
+      "PRISMA_USER": "5342ce5c-f0a8-456a-8365-637a5908f1ce",
+      "PRISMA_PASS": "W6WpcFzePN69xzo2Gy5nt05n4e8=",
+      "PRISMA_CONSOLE_URL": "https://us-east1.cloud.twistlock.com/us-2-158286553",
       "DOCKERHUB_USER": "mhnetdata",
-      "DOCKERHUB_PASS": "YOUR_DOCKERHUB_TOKEN_HERE",
-      "APP_ID": "Nd@certmh01"
+      "DOCKERHUB_PASS": "Nd@certmh01",
+      "APP_ID": "test_1_app"
     }
   },
   "phases": {
