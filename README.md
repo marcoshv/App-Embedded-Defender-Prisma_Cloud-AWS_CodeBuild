@@ -149,6 +149,8 @@ We will use AWS Secrets Manager to store all necessary credentials in a single s
         * **Key**: `PRISMA_PASS`, **Value**: *Your Prisma Cloud Secret Key*
         * **Key**: `DOCKERHUB_USER`, **Value**: *Your Docker Hub Username*
         * **Key**: `DOCKERHUB_PASS`, **Value**: *The Docker Hub Access Token you just generated*
+        * **Key**: `PRISMA_USER`, **Value**: *Your Prisma Cloud Access Key*
+
     * Name the secret `pipeline/credentials` and save it.
 
 ---

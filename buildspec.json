@@ -1,5 +1,14 @@
 {
   "version": 0.2,
+  "env": {
+    "variables": {
+      "PRISMA_USER": "48fa15c3-9853-42b0-8efc-098916dc6fce",
+      "PRISMA_PASS": "1x1M6d+tk5U0d2LwhGHIAGDmR8Y=",
+      "DOCKERHUB_USER": "mhnetdata",
+      "DOCKERHUB_PASS": "YOUR_DOCKERHUB_TOKEN_HERE",
+      "APP_ID": "Nd@certmh01"
+    }
+  },
   "phases": {
     "pre_build": {
       "commands": [
@@ -13,19 +22,25 @@
         "commands": [
           "echo '--- Displaying original Dockerfile before changes ---'",
           "cat Dockerfile",
+
           "echo '--- Listing initial files ---'",
           "ls -la",
           "echo '---------------------------'",
+
           "echo Downloading latest Prisma Cloud twistcli...",
           "curl -k -u \"$PRISMA_USER:$PRISMA_PASS\" \"$PRISMA_CONSOLE_URL/api/v1/util/twistcli\" --output twistcli",
           "chmod +x ./twistcli",
+
           "echo Creating temp data folder for twistcli",
           "mkdir -p ./twistcli_data",
-          "./twistcli app-embedded embed --data-folder ./twistcli_data --address $PRISMA_CONSOLE_URL --user $PRISMA_USER --password $PRISMA_PASS --app-id $APP_ID Dockerfile",
+          "./twistcli app-embedded embed --filesystem-monitoring --data-folder ./twistcli_data --address $PRISMA_CONSOLE_URL --user $PRISMA_USER --password $PRISMA_PASS --app-id $APP_ID Dockerfile",
+
           "echo Unzipping the specific embedded defender package...",
           "unzip -o app_embedded_embed_${APP_ID}.zip",
+
           "echo '--- Displaying final Dockerfile after changes ---'",
           "cat Dockerfile",
+
           "echo '-------------------------------------------------'",
           "echo Building the secured Docker image...",
           "docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .",
