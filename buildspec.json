@@ -1,5 +1,10 @@
 {
   "version": 0.2,
+  "env": {
+    "variables": {
+      "APP_ID": "my_secure_app"
+    }
+  },
   "phases": {
     "pre_build": {
       "commands": [
