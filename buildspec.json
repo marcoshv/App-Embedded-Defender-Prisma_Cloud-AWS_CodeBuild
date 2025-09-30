@@ -1,15 +1,5 @@
 {
   "version": 0.2,
-  "env": {
-    "variables": {
-      "PRISMA_USER": "5342ce5c-f0a8-456a-8365-637a5908f1ce",
-      "PRISMA_PASS": "W6WpcFzePN69xzo2Gy5nt05n4e8=",
-      "PRISMA_CONSOLE_URL": "https://us-east1.cloud.twistlock.com/us-2-158286553",
-      "DOCKERHUB_USER": "mhnetdata",
-      "DOCKERHUB_PASS": "Nd@certmh01",
-      "APP_ID": "test_1_app"
-    }
-  },
   "phases": {
     "pre_build": {
       "commands": [

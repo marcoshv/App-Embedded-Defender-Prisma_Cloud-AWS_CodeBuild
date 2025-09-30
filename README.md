@@ -122,8 +122,9 @@ We'll use AWS CloudShell and `eksctl` to provision a serverless Kubernetes clust
 
 2.  **Install `eksctl`**: Run these two commands in CloudShell to install the official EKS command-line tool.
     ```bash
-    curl --silent --location "[https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname](https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname) -s)_amd64.tar.gz" | tar xz -C /tmp
+    sudo curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
     sudo mv /tmp/eksctl /usr/local/bin
+    eksctl create cluster --name myDemoEKS --region us-east-1 --fargate
     ```
 
 3.  **Create the Cluster**: Run the following command. **This will take 15-20 minutes.**
@@ -149,7 +150,6 @@ We will use AWS Secrets Manager to store all necessary credentials in a single s
         * **Key**: `PRISMA_PASS`, **Value**: *Your Prisma Cloud Secret Key*
         * **Key**: `DOCKERHUB_USER`, **Value**: *Your Docker Hub Username*
         * **Key**: `DOCKERHUB_PASS`, **Value**: *The Docker Hub Access Token you just generated*
-        * **Key**: `PRISMA_USER`, **Value**: *Your Prisma Cloud Access Key*
 
     * Name the secret `pipeline/credentials` and save it.
 

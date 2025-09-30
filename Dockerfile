@@ -1,6 +1,8 @@
 # Use a standard Nginx image as the base
 FROM nginx:alpine
 
+
+
 # Copy a custom index.html to the Nginx web root (optional)
 COPY index.html /usr/share/nginx/html
 
